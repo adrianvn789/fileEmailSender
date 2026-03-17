@@ -75,27 +75,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CANV-01 | - | Pending |
-| CANV-02 | - | Pending |
-| CANV-03 | - | Pending |
-| CANV-04 | - | Pending |
-| GSHT-01 | - | Pending |
-| GSHT-02 | - | Pending |
-| MTCH-01 | - | Pending |
-| MTCH-02 | - | Pending |
-| MTCH-03 | - | Pending |
-| MTCH-04 | - | Pending |
-| MAIL-01 | - | Pending |
-| MAIL-02 | - | Pending |
-| MAIL-03 | - | Pending |
-| CONF-01 | - | Pending |
-| CONF-02 | - | Pending |
+| CANV-01 | Phase 2 | Pending |
+| CANV-02 | Phase 2 | Pending |
+| CANV-03 | Phase 2 | Pending |
+| CANV-04 | Phase 2 | Pending |
+| GSHT-01 | Phase 3 | Pending |
+| GSHT-02 | Phase 3 | Pending |
+| MTCH-01 | Phase 3 | Pending |
+| MTCH-02 | Phase 3 | Pending |
+| MTCH-03 | Phase 3 | Pending |
+| MTCH-04 | Phase 3 | Pending |
+| MAIL-01 | Phase 4 | Pending |
+| MAIL-02 | Phase 4 | Pending |
+| MAIL-03 | Phase 4 | Pending |
+| CONF-01 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after initial definition*
+*Last updated: 2026-03-17 after roadmap creation — traceability complete*
