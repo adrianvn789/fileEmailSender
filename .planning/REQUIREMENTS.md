@@ -10,9 +10,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Canva Integration
 
 - [x] **CANV-01**: User can connect to Canva API and list pages of a design by ID
-- [ ] **CANV-02**: Tool detects the "Participantes" divider page and isolates certificate pages after it
-- [ ] **CANV-03**: Tool extracts the participant name from each certificate page
-- [ ] **CANV-04**: Tool exports each matched certificate page as a PDF via Canva export API
+- [x] **CANV-02**: Tool detects the "Participantes" divider page and isolates certificate pages after it
+- [x] **CANV-03**: Tool extracts the participant name from each certificate page
+- [x] **CANV-04**: Tool exports each matched certificate page as a PDF via Canva export API
 
 ### Google Sheets
 
@@ -76,9 +76,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CANV-01 | Phase 2 | Complete |
-| CANV-02 | Phase 2 | Pending |
-| CANV-03 | Phase 2 | Pending |
-| CANV-04 | Phase 2 | Pending |
+| CANV-02 | Phase 2 | Complete |
+| CANV-03 | Phase 2 | Complete |
+| CANV-04 | Phase 2 | Complete |
 | GSHT-01 | Phase 3 | Pending |
 | GSHT-02 | Phase 3 | Pending |
 | MTCH-01 | Phase 3 | Pending |

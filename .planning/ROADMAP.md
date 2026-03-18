@@ -41,7 +41,7 @@ Plans:
   2. The tool correctly identifies and skips all pages before and including the "Participantes" divider, printing only certificate pages
   3. The tool extracts a participant name string from each certificate page (via page title or PDF text extraction) and the name matches what is visible on the certificate
   4. For each certificate page, the tool creates a Canva export job, polls until complete, and saves a single-page PDF to a temp directory — without hitting a rate limit error on a design of at least 10 pages
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
 - [ ] 02-01-PLAN.md — OAuth PKCE auth, API client, list design pages
 - [ ] 02-02-PLAN.md — PDF export pipeline, text extraction, divider detection, name extraction
@@ -77,6 +77,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Setup and Security Baseline | 1/1 | Complete   | 2026-03-18 |
-| 2. Canva Integration | 1/3 | In Progress|  |
+| 2. Canva Integration | 2/3 | In Progress|  |
 | 3. Sheets Integration and Matching Pipeline | 0/TBD | Not started | - |
 | 4. Email Send Pipeline | 0/TBD | Not started | - |

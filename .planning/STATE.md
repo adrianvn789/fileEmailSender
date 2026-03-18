@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-18T14:08:11.433Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-18T14:13:42.972Z"
 last_activity: 2026-03-17 — Roadmap created, ready to begin Phase 1 planning
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-setup-and-security-baseline P01 | 18 | 2 tasks | 14 files |
 | Phase 02-canva-integration P01 | 152 | 1 tasks | 8 files |
+| Phase 02-canva-integration P02 | 3 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Recent decisions affecting current work:
 - [Phase 02-canva-integration]: pytest-asyncio asyncio_mode=auto: cleaner async test syntax without per-test decorator noise
 - [Phase 02-canva-integration]: CANVA_DESIGN_ID outside _REQUIRED_VARS: preserves existing test_config.py behavior by keeping it lazily-checked
 - [Phase 02-canva-integration]: TokenStore uses keyring for OS-native secure storage: tokens are ephemeral and must not be committed to plaintext files
+- [Phase 02-canva-integration]: longest-line heuristic for name extraction: max(lines, key=len) — simple, works for certificate layouts, will be validated against real Canva designs in Phase 3
+- [Phase 02-canva-integration]: fpdf2 added as dev-only dependency for test PDF fixture generation; not in production dependencies
 
 ### Pending Todos
 
@@ -80,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T14:08:11.430Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-03-18T14:13:42.969Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
