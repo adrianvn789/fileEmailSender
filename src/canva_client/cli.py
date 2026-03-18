@@ -8,3 +8,7 @@ def main() -> None:
     validate_config()
     print("canva-client: config OK")
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
