@@ -1,0 +1,15 @@
+# Credentials — NEVER commit these
+.env
+credentials.json
+token.json
+
+# Certificate PDFs
+*.pdf
+
+# Python / uv artifacts
+__pycache__/
+*.py[cod]
+.venv/
+dist/
+*.egg-info/
+.pytest_cache/

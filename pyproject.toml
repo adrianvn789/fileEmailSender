@@ -1,0 +1,22 @@
+[project]
+name = "canva-client"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "python-dotenv>=1.2.2",
+    "rapidfuzz>=3.14.3",
+]
+
+[project.scripts]
+canva-client = "canva_client.cli:main"
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=9.0.2"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
