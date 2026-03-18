@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-18T13:37:53.512Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-18T14:08:11.433Z"
 last_activity: 2026-03-17 — Roadmap created, ready to begin Phase 1 planning
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-setup-and-security-baseline P01 | 18 | 2 tasks | 14 files |
+| Phase 02-canva-integration P01 | 152 | 1 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - [Pre-Phase 1]: Fuzzy matching threshold set to 90-95% (rapidfuzz token_sort_ratio); must be validated against real attendee name data in Phase 3.
 - [Phase 01-setup-and-security-baseline]: partial_token_sort_ratio chosen over token_sort_ratio: correctly rejects Maria Silva vs Mariana Silva at threshold 90 while handling word-reorder and accent normalization
 - [Phase 01-setup-and-security-baseline]: validate_config() kept call-explicit (not at import time) to prevent pytest collection from triggering sys.exit(2)
+- [Phase 02-canva-integration]: pytest-asyncio asyncio_mode=auto: cleaner async test syntax without per-test decorator noise
+- [Phase 02-canva-integration]: CANVA_DESIGN_ID outside _REQUIRED_VARS: preserves existing test_config.py behavior by keeping it lazily-checked
+- [Phase 02-canva-integration]: TokenStore uses keyring for OS-native secure storage: tokens are ephemeral and must not be committed to plaintext files
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:37:53.502Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-canva-integration/02-CONTEXT.md
+Last session: 2026-03-18T14:08:11.430Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None
