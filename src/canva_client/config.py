@@ -26,3 +26,4 @@ def validate_config() -> None:
 MATCH_THRESHOLD: int = int(os.environ.get("MATCH_THRESHOLD", "90"))
 NAME_COLUMN: int = int(os.environ.get("NAME_COLUMN", "0"))
 EMAIL_COLUMN: int = int(os.environ.get("EMAIL_COLUMN", "1"))
+CANVA_DESIGN_ID: str = os.environ.get("CANVA_DESIGN_ID", "")

@@ -3,6 +3,8 @@ name = "canva-client"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
+    "httpx>=0.28.1",
+    "keyring>=25.7.0",
     "python-dotenv>=1.2.2",
     "rapidfuzz>=3.14.3",
 ]
@@ -15,8 +17,12 @@ requires = ["uv_build"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = ["pytest>=9.0.2"]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=0.24.0",
+]
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib"]
 testpaths = ["tests"]
+asyncio_mode = "auto"
