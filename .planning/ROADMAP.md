@@ -28,7 +28,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `.gitignore` prevents `.env`, `credentials.json`, `token.json`, and any `*.pdf` files from being staged by git
   3. `uv run pytest` passes with unit tests covering the fuzzy matcher at multiple confidence levels (high-confidence match, below-threshold match, no match)
   4. `Certificate`, `Attendee`, `MatchResult`, and `PipelineResult` dataclasses exist and can be instantiated without error
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold, credential safety, data models, fuzzy matcher, and full test suite
 
 ### Phase 2: Canva Integration
 **Goal**: The tool can authenticate with Canva, list all pages of a design, isolate certificate pages after the "Participantes" divider, extract a participant name from each certificate page, and export each page as a PDF — with the name extraction strategy empirically validated against a real design.
@@ -70,7 +72,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Setup and Security Baseline | 0/TBD | Not started | - |
+| 1. Setup and Security Baseline | 0/1 | Planning complete | - |
 | 2. Canva Integration | 0/TBD | Not started | - |
 | 3. Sheets Integration and Matching Pipeline | 0/TBD | Not started | - |
 | 4. Email Send Pipeline | 0/TBD | Not started | - |
