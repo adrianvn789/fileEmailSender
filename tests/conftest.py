@@ -1,5 +1,60 @@
 """Shared fixtures for Canva API tests."""
+import io
 import pytest
+from fpdf import FPDF
+
+
+def make_pdf(page_texts: list[str]) -> bytes:
+    """Create a minimal PDF with one page per text string."""
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=False)
+    for text in page_texts:
+        pdf.add_page()
+        pdf.set_font("Helvetica", size=12)
+        pdf.cell(0, 10, text)
+    return bytes(pdf.output())
+
+
+@pytest.fixture
+def make_pdf_fixture():
+    """Return the make_pdf helper function as a fixture."""
+    return make_pdf
+
+
+@pytest.fixture
+def sample_certificate_pdf():
+    return make_pdf([
+        "Apresentacao do Evento",
+        "Participantes",
+        "Joao Pedro Silva",
+        "Maria Clara Santos",
+    ])
+
+
+SAMPLE_EXPORT_JOB_RESPONSE = {
+    "job": {
+        "id": "export_job_123",
+        "status": "in_progress",
+    }
+}
+
+SAMPLE_EXPORT_COMPLETE_RESPONSE = {
+    "job": {
+        "id": "export_job_123",
+        "status": "success",
+        "urls": ["https://export.canva.com/pdf/design123.pdf"],
+    }
+}
+
+
+@pytest.fixture
+def sample_export_job_response():
+    return SAMPLE_EXPORT_JOB_RESPONSE
+
+
+@pytest.fixture
+def sample_export_complete_response():
+    return SAMPLE_EXPORT_COMPLETE_RESPONSE
 
 
 SAMPLE_PAGES_RESPONSE = {
