@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. `Certificate`, `Attendee`, `MatchResult`, and `PipelineResult` dataclasses exist and can be instantiated without error
 **Plans:** 1/1 plans complete
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold, credential safety, data models, fuzzy matcher, and full test suite
+- [x] 01-01-PLAN.md — Project scaffold, credential safety, data models, fuzzy matcher, and full test suite
 
 ### Phase 2: Canva Integration
 **Goal**: The tool can authenticate with Canva, list all pages of a design, isolate certificate pages after the "Participantes" divider, extract a participant name from each certificate page, and export each page as a PDF — with the name extraction strategy empirically validated against a real design.
@@ -41,7 +41,11 @@ Plans:
   2. The tool correctly identifies and skips all pages before and including the "Participantes" divider, printing only certificate pages
   3. The tool extracts a participant name string from each certificate page (via page title or PDF text extraction) and the name matches what is visible on the certificate
   4. For each certificate page, the tool creates a Canva export job, polls until complete, and saves a single-page PDF to a temp directory — without hitting a rate limit error on a design of at least 10 pages
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — OAuth PKCE auth, API client, list design pages
+- [ ] 02-02-PLAN.md — PDF export pipeline, text extraction, divider detection, name extraction
+- [ ] 02-03-PLAN.md — CLI pipeline wiring and human verification against real design
 
 ### Phase 3: Sheets Integration and Matching Pipeline
 **Goal**: The tool reads the attendee list from a Google Sheet, fuzzy-matches each certificate page name to an attendee, and produces a dry-run preview table showing every match with confidence scores — surfacing low-confidence matches and unmatched attendees before any email is sent.
@@ -73,6 +77,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Setup and Security Baseline | 1/1 | Complete   | 2026-03-18 |
-| 2. Canva Integration | 0/TBD | Not started | - |
+| 2. Canva Integration | 0/3 | Planning complete | - |
 | 3. Sheets Integration and Matching Pipeline | 0/TBD | Not started | - |
 | 4. Email Send Pipeline | 0/TBD | Not started | - |
