@@ -34,8 +34,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Configuration
 
-- [ ] **CONF-01**: API keys, SMTP credentials, and sheet ID are loaded from `.env` file
-- [ ] **CONF-02**: Tool returns meaningful exit codes (0 = success, 1 = partial failure, 2 = config error)
+- [x] **CONF-01**: API keys, SMTP credentials, and sheet ID are loaded from `.env` file
+- [x] **CONF-02**: Tool returns meaningful exit codes (0 = success, 1 = partial failure, 2 = config error)
 
 ## v2 Requirements
 
@@ -88,8 +88,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MAIL-01 | Phase 4 | Pending |
 | MAIL-02 | Phase 4 | Pending |
 | MAIL-03 | Phase 4 | Pending |
-| CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
+| CONF-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total

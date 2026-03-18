@@ -12,7 +12,7 @@ Four phases that build a CLI pipeline end-to-end: first establish the project sk
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Setup and Security Baseline** - Project skeleton, credential hygiene, data models, pure matcher logic with tests
+- [x] **Phase 1: Setup and Security Baseline** - Project skeleton, credential hygiene, data models, pure matcher logic with tests (completed 2026-03-18)
 - [ ] **Phase 2: Canva Integration** - OAuth PKCE, design page listing, divider detection, PDF export, name extraction validation
 - [ ] **Phase 3: Sheets Integration and Matching Pipeline** - Read attendee data, fuzzy match, dry-run preview table, unmatched report
 - [ ] **Phase 4: Email Send Pipeline** - SMTP send with PDF attachment, confirmation gate, error handling, idempotency, CLI entry point
@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `.gitignore` prevents `.env`, `credentials.json`, `token.json`, and any `*.pdf` files from being staged by git
   3. `uv run pytest` passes with unit tests covering the fuzzy matcher at multiple confidence levels (high-confidence match, below-threshold match, no match)
   4. `Certificate`, `Attendee`, `MatchResult`, and `PipelineResult` dataclasses exist and can be instantiated without error
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 01-01-PLAN.md — Project scaffold, credential safety, data models, fuzzy matcher, and full test suite
 
@@ -72,7 +72,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Setup and Security Baseline | 0/1 | Planning complete | - |
+| 1. Setup and Security Baseline | 1/1 | Complete   | 2026-03-18 |
 | 2. Canva Integration | 0/TBD | Not started | - |
 | 3. Sheets Integration and Matching Pipeline | 0/TBD | Not started | - |
 | 4. Email Send Pipeline | 0/TBD | Not started | - |

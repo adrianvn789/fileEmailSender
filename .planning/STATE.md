@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-17T18:17:10.993Z"
+stopped_at: Completed 01-setup-and-security-baseline/01-01-PLAN.md
+last_updated: "2026-03-18T00:35:12.634Z"
 last_activity: 2026-03-17 — Roadmap created, ready to begin Phase 1 planning
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-setup-and-security-baseline P01 | 18 | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -60,6 +61,8 @@ Recent decisions affecting current work:
 
 - [Pre-Phase 1]: Name extraction strategy unresolved — page title approach assumed; must be empirically validated in Phase 2 against a real Canva design with a live API token. If page titles are generic, pivot to user-supplied CSV mapping.
 - [Pre-Phase 1]: Fuzzy matching threshold set to 90-95% (rapidfuzz token_sort_ratio); must be validated against real attendee name data in Phase 3.
+- [Phase 01-setup-and-security-baseline]: partial_token_sort_ratio chosen over token_sort_ratio: correctly rejects Maria Silva vs Mariana Silva at threshold 90 while handling word-reorder and accent normalization
+- [Phase 01-setup-and-security-baseline]: validate_config() kept call-explicit (not at import time) to prevent pytest collection from triggering sys.exit(2)
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T18:17:10.987Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-setup-and-security-baseline/01-CONTEXT.md
+Last session: 2026-03-18T00:35:12.630Z
+Stopped at: Completed 01-setup-and-security-baseline/01-01-PLAN.md
+Resume file: None
