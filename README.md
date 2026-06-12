@@ -15,7 +15,9 @@ Built for events (hackathons, workshops) where you export per-person certificate
 - [uv](https://docs.astral.sh/uv/)
 - A Gmail account with an **App Password** (requires 2-Step Verification)
 
-## Installation
+## Step-by-step guide
+
+### Step 1 — Get the code (once)
 
 ```bash
 git clone https://github.com/adrianvn789/fileEmailSender.git
@@ -23,101 +25,120 @@ cd fileEmailSender
 uv sync
 ```
 
-## Configuration
+### Step 2 — Configure Gmail (once)
 
 ```bash
 cp .env.example .env
 ```
 
-| Variable | Description | Default |
-|---|---|---|
-| `GMAIL_USER` | Your Gmail address | — |
-| `GMAIL_APP_PASSWORD` | Gmail App Password (Google Account → Security → 2-Step Verification → App passwords) | — |
-| `MATCH_THRESHOLD` | Minimum fuzzy-match score (0–100) to accept a match | `80` |
-| `MARKER_STRING` | Custom marker text that precedes the name in the PDF (see below) | built-in `Certificado a:` variants |
-| `INPUT_DIR` | Folder containing event subfolders | `input` |
-| `OUTPUT_DIR` | Folder where results are written | `output` |
+Open `.env` in any editor and fill in:
 
-The email subject and body template live in `src/file_email_sender/config.py`.
+```
+GMAIL_USER=youraddress@gmail.com
+GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx
+```
 
-## Input layout
+To get the App Password: Google Account → Security → 2-Step Verification (must be ON) → App passwords → create one → copy the 16-character code.
 
-Create one subfolder per event inside `input/`:
+### Step 3 — Prepare your files
+
+Create a folder for your event inside `input/`:
 
 ```
 input/
 └── my-event/
-    ├── attendees.xlsx    # column A = name, column B = email, no header row
-    ├── cert1.pdf
-    ├── cert2.pdf
+    ├── attendees.xlsx     ← column A = full name, column B = email, NO header row
+    ├── certificado1.pdf
+    ├── certificado2.pdf
     └── ...
 ```
 
 **Excel file:** first sheet, column A holds the attendee name, column B the email. Rows missing either value are skipped.
 
-**Certificate PDFs:** the recipient name is read from the PDF text. The first page should contain a marker line followed by (or ending with) the name. Recognized markers (case-insensitive):
-
-- `Certificado a: <name>` or `Certificado a:` with the name on the next line
-- `Certificado:` / `Certifica a:` / `Certifica:` variants, with or without a space before the colon
-- `Certificado a` (no colon) at the end of a line, name on the next line
-
-**Custom marker:** if your certificates use different wording, pass it with `--marker` (or set `MARKER_STRING` in `.env`):
-
-```bash
-uv run file-email-sender match my-event --marker "Otorgado a"
-```
-
-Custom markers are matched case- and accent-insensitively, tolerate extra spaces and an optional colon, and accept the name on the same line or the next line — same robustness as the default. Setting a custom marker replaces the built-in `Certificado a:` variants.
-
-If no marker is found (e.g. image-only PDFs), the **filename** is used as a fallback: name the file with the person's name or part of it (`maria_perez.pdf`, `cert-Maria-Silva.pdf`, `MariaSilva.pdf` — `_`, `-`, `.` count as spaces, camelCase is split).
-
-## Usage
-
-### 1. Match attendees to PDFs
+### Step 4 — Run the matcher
 
 ```bash
 uv run file-email-sender match my-event
 ```
 
-If the PDFs live in a different subfolder than the Excel file:
+This reads each PDF, finds the name after `Certificado a:`, and pairs it with an attendee.
 
-```bash
-uv run file-email-sender match my-event my-certs-folder
-```
+Variants if needed:
 
-To ignore the PDF text entirely and match every certificate by its **filename**:
+- Certificates say something else (e.g. `Otorgado a:`):
 
-```bash
-uv run file-email-sender match my-event --by-filename
-```
+  ```bash
+  uv run file-email-sender match my-event --marker "Otorgado a"
+  ```
 
-Custom marker wording (see [Input layout](#input-layout)):
+- PDFs have no readable text — names are in the filenames:
 
-```bash
-uv run file-email-sender match my-event --marker "Otorgado a"
-```
+  ```bash
+  uv run file-email-sender match my-event --by-filename
+  ```
 
-Filename matching is fuzzy, not exact: `cert-MARIA_pérez.pdf`, `MariaPerez.pdf`, or `maria-perez-2024.pdf` all match the attendee `María Perez`. Extra words and numbers in the filename are tolerated.
+- Excel file and PDFs live in different subfolders:
 
-This writes `output/my-event/matches.csv` and prints matched pairs, unmatched attendees, and unmatched PDFs.
+  ```bash
+  uv run file-email-sender match my-event my-certs-folder
+  ```
 
-Matching is robust to case, accents, word order, and minor typos (`MARÍA PÉREZ` ≡ `perez maria`). Each PDF is matched to at most one attendee.
+### Step 5 — Check the results
 
-### 2. Review matches
+Open `output/my-event/matches.csv`. Each row = one email that will be sent.
 
-Open `output/my-event/matches.csv` and check the pairs before sending — especially rows with a low `score`. Edit or delete rows as needed.
+- Verify name ↔ PDF pairs are correct, especially rows with a low `score`
+- Delete any row you don't want sent
+- The console also lists unmatched attendees and unmatched PDFs
 
-### 3. Send emails
+### Step 6 — Send the emails
 
 ```bash
 uv run file-email-sender send
 ```
 
-Scans every subfolder in `output/`, reads its `matches.csv`, and sends each attendee their PDF. Progress is printed per email, with a 1.5 s delay between sends.
+Sends each person their PDF, one every 1.5 seconds, printing SENT/FAIL per person.
 
-Sent emails are recorded in `matches_log.json` next to the CSV, so re-running is safe: already-sent addresses are skipped.
+### Step 7 — If something fails, run send again
 
-To use a different CSV file name:
+```bash
+uv run file-email-sender send
+```
+
+Safe to repeat: already-sent people are skipped (tracked in `output/my-event/matches_log.json`).
+
+## How names are read from PDFs
+
+The recipient name is read from the first page of each PDF. Recognized markers (case-insensitive):
+
+- `Certificado a: <name>` or `Certificado a:` with the name on the next line
+- `Certificado:` / `Certifica a:` / `Certifica:` variants, with or without a space before the colon
+- `Certificado a` (no colon) at the end of a line, name on the next line
+
+**Custom marker:** if your certificates use different wording, pass it with `--marker` (or set `MARKER_STRING` in `.env`). Custom markers are matched case- and accent-insensitively, tolerate extra spaces and an optional colon, and accept the name on the same line or the next line. Setting a custom marker replaces the built-in `Certificado a:` variants.
+
+**Filename fallback:** if no marker is found in the text (e.g. image-only PDFs), the filename is used instead: name the file with the person's name or part of it (`maria_perez.pdf`, `cert-Maria-Silva.pdf`, `MariaSilva.pdf` — `_`, `-`, `.` count as spaces, camelCase is split). With `--by-filename`, the text is skipped and **all** PDFs match this way.
+
+Filename matching is fuzzy, not exact: `cert-MARIA_pérez.pdf`, `MariaPerez.pdf`, or `maria-perez-2024.pdf` all match the attendee `María Perez`. Extra words and numbers in the filename are tolerated.
+
+**Fuzzy matching** is robust to case, accents, word order, and minor typos (`MARÍA PÉREZ` ≡ `perez maria`). Each PDF is matched to at most one attendee.
+
+## Configuration reference
+
+All settings live in `.env`:
+
+| Variable | Description | Default |
+|---|---|---|
+| `GMAIL_USER` | Your Gmail address | — |
+| `GMAIL_APP_PASSWORD` | Gmail App Password | — |
+| `MATCH_THRESHOLD` | Minimum fuzzy-match score (0–100) to accept a match | `80` |
+| `MARKER_STRING` | Custom marker text that precedes the name in the PDF | built-in `Certificado a:` variants |
+| `INPUT_DIR` | Folder containing event subfolders | `input` |
+| `OUTPUT_DIR` | Folder where results are written | `output` |
+
+The email subject and body template live in `src/file_email_sender/config.py`.
+
+To use a different CSV file name when sending:
 
 ```bash
 uv run file-email-sender send other.csv
