@@ -34,6 +34,7 @@ cp .env.example .env
 | `GMAIL_USER` | Your Gmail address | — |
 | `GMAIL_APP_PASSWORD` | Gmail App Password (Google Account → Security → 2-Step Verification → App passwords) | — |
 | `MATCH_THRESHOLD` | Minimum fuzzy-match score (0–100) to accept a match | `80` |
+| `MARKER_STRING` | Custom marker text that precedes the name in the PDF (see below) | built-in `Certificado a:` variants |
 | `INPUT_DIR` | Folder containing event subfolders | `input` |
 | `OUTPUT_DIR` | Folder where results are written | `output` |
 
@@ -60,6 +61,14 @@ input/
 - `Certificado:` / `Certifica a:` / `Certifica:` variants, with or without a space before the colon
 - `Certificado a` (no colon) at the end of a line, name on the next line
 
+**Custom marker:** if your certificates use different wording, pass it with `--marker` (or set `MARKER_STRING` in `.env`):
+
+```bash
+uv run file-email-sender match my-event --marker "Otorgado a"
+```
+
+Custom markers are matched case- and accent-insensitively, tolerate extra spaces and an optional colon, and accept the name on the same line or the next line — same robustness as the default. Setting a custom marker replaces the built-in `Certificado a:` variants.
+
 If no marker is found (e.g. image-only PDFs), the **filename** is used as a fallback: name the file with the person's name or part of it (`maria_perez.pdf`, `cert-Maria-Silva.pdf`, `MariaSilva.pdf` — `_`, `-`, `.` count as spaces, camelCase is split).
 
 ## Usage
@@ -80,6 +89,12 @@ To ignore the PDF text entirely and match every certificate by its **filename**:
 
 ```bash
 uv run file-email-sender match my-event --by-filename
+```
+
+Custom marker wording (see [Input layout](#input-layout)):
+
+```bash
+uv run file-email-sender match my-event --marker "Otorgado a"
 ```
 
 Filename matching is fuzzy, not exact: `cert-MARIA_pérez.pdf`, `MariaPerez.pdf`, or `maria-perez-2024.pdf` all match the attendee `María Perez`. Extra words and numbers in the filename are tolerated.

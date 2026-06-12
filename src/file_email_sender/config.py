@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MATCH_THRESHOLD: int = int(os.environ.get("MATCH_THRESHOLD", "80"))
+MARKER_STRING: str = os.environ.get("MARKER_STRING", "")
 INPUT_DIR: str = os.environ.get("INPUT_DIR", "input")
 OUTPUT_DIR: str = os.environ.get("OUTPUT_DIR", "output")
 GMAIL_USER: str = os.environ.get("GMAIL_USER", "")

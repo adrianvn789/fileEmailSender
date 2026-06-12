@@ -6,6 +6,16 @@ def main() -> None:
     args = sys.argv[1:]
     by_filename = "--by-filename" in args
     args = [a for a in args if a != "--by-filename"]
+
+    marker = None
+    if "--marker" in args:
+        idx = args.index("--marker")
+        if idx + 1 >= len(args):
+            print("Error: --marker requires a value, e.g. --marker 'Otorgado a'")
+            sys.exit(1)
+        marker = args[idx + 1]
+        del args[idx : idx + 2]
+
     command = args[0] if args else "send"
 
     try:
@@ -17,10 +27,12 @@ def main() -> None:
             if not attendee_folder:
                 print(
                     "Usage: file-email-sender match <attendee_folder>"
-                    " [certificate_folder] [--by-filename]"
+                    " [certificate_folder] [--by-filename] [--marker <string>]"
                 )
                 sys.exit(1)
-            run_matching(attendee_folder, cert_folder, by_filename=by_filename)
+            run_matching(
+                attendee_folder, cert_folder, by_filename=by_filename, marker=marker
+            )
         elif command == "send":
             from file_email_sender.pipeline import run_pipeline
 

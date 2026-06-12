@@ -32,20 +32,45 @@ def read_attendees_xlsx(xlsx_path: Path) -> list[dict]:
     return attendees
 
 
-# Marker variants: "Certificado a:", "Certificado:", "Certifica a:", "Certifica:",
-# optional space before the colon ("Certificado a :").
+# Default marker variants: "Certificado a:", "Certificado:", "Certifica a:",
+# "Certifica:", optional space before the colon ("Certificado a :").
 _MARKER_RE = re.compile(r"certifica(?:do)?\s*a?\s*:", re.IGNORECASE)
 # No-colon variant: only "certificado a" / "certifica a" at end of line.
 # A bare "certificado" ending a line is common prose and must not trigger.
 _MARKER_EOL_RE = re.compile(r"certifica(?:do)?\s+a\s*$", re.IGNORECASE)
 
 
-def extract_name_from_pdf(pdf_path: Path) -> str | None:
+def _fold(s: str) -> str:
+    """Lowercase and strip accents, preserving string length (index-safe)."""
+    return "".join(unicodedata.normalize("NFD", c)[0] for c in s).lower()
+
+
+def compile_marker(marker: str) -> tuple[re.Pattern, re.Pattern]:
+    """Build (inline, end-of-line) regexes from a user marker string.
+
+    Matching is case- and accent-insensitive, tolerates flexible whitespace
+    between words and an optional colon (with optional space before it).
+    """
+    marker = _fold(marker).strip().rstrip(":").strip()
+    if not marker:
+        raise ValueError("marker string is empty")
+    body = r"\s+".join(re.escape(t) for t in marker.split())
+    inline = re.compile(body + r"\s*:")
+    eol = re.compile(body + r"\s*:?\s*$")
+    return inline, eol
+
+
+def extract_name_from_pdf(pdf_path: Path, marker: str | None = None) -> str | None:
     """Extract the certificate recipient name from a PDF.
 
-    Looks for a marker line ("Certificado a:", "Certifica a:", "Certificado:", ...)
-    and returns the text after the colon on the same line, or the next line.
+    Looks for a marker line ("Certificado a:", "Certifica a:", ... by default,
+    or the given custom marker) and returns the text after the colon on the
+    same line, or the next line.
     """
+    if marker:
+        inline_re, eol_re = compile_marker(marker)
+    else:
+        inline_re, eol_re = _MARKER_RE, _MARKER_EOL_RE
     try:
         with pdfplumber.open(pdf_path) as pdf:
             text = pdf.pages[0].extract_text()
@@ -53,13 +78,14 @@ def extract_name_from_pdf(pdf_path: Path) -> str | None:
                 return None
             lines = [l.strip() for l in text.split("\n") if l.strip()]
             for i, line in enumerate(lines):
-                m = _MARKER_RE.search(line)
+                folded = _fold(line)  # same length as line, so indexes align
+                m = inline_re.search(folded)
                 if m:
                     rest = line[m.end():].strip()
                     if rest:
                         return rest
                     return lines[i + 1] if i + 1 < len(lines) else None
-                if _MARKER_EOL_RE.search(line):
+                if eol_re.search(folded):
                     return lines[i + 1] if i + 1 < len(lines) else None
     except Exception:
         return None
@@ -83,22 +109,26 @@ def match_certificates(
     pdf_dir: Path,
     threshold: int | None = None,
     by_filename: bool = False,
+    marker: str | None = None,
 ) -> tuple[list[dict], list[dict], list[str]]:
     """Match attendees to certificate PDFs using fuzzy matching.
 
     With by_filename=True, PDF text is ignored and every certificate is
     matched against its (fuzzy-normalized) filename instead.
+    marker overrides the default "Certificado a:" marker variants.
 
     Returns (matches, unmatched_attendees, unmatched_pdfs).
     """
     if threshold is None:
         threshold = config.MATCH_THRESHOLD
+    if marker is None:
+        marker = config.MARKER_STRING or None
 
     # Extract names from all PDFs; fall back to the filename when the
     # PDF text has no recognizable marker line (or always, with by_filename).
     cert_names: dict[str, tuple[str, str]] = {}  # pdf_name -> (name, source)
     for pdf_path in sorted(pdf_dir.glob("*.pdf")):
-        name = None if by_filename else extract_name_from_pdf(pdf_path)
+        name = None if by_filename else extract_name_from_pdf(pdf_path, marker=marker)
         if name:
             cert_names[pdf_path.name] = (name, "text")
         else:
@@ -148,11 +178,13 @@ def run_matching(
     attendee_folder: str,
     certificate_folder: str | None = None,
     by_filename: bool = False,
+    marker: str | None = None,
 ) -> None:
     """Run the matching pipeline for a given attendee folder.
 
     If certificate_folder is not provided, uses the same folder as attendee_folder.
     With by_filename=True, matches against PDF filenames instead of PDF text.
+    marker overrides the default "Certificado a:" marker variants.
     """
     input_base = Path(config.INPUT_DIR)
     output_base = Path(config.OUTPUT_DIR)
@@ -179,8 +211,10 @@ def run_matching(
     # Match
     if by_filename:
         print("Matching by filename")
+    elif marker or config.MARKER_STRING:
+        print(f"Using marker: {marker or config.MARKER_STRING!r}")
     matches, unmatched_att, unmatched_pdfs = match_certificates(
-        attendees, cert_dir, by_filename=by_filename
+        attendees, cert_dir, by_filename=by_filename, marker=marker
     )
     print(f"\nResults:")
     print(f"  Matched:              {len(matches)}")

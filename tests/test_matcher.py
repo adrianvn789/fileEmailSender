@@ -62,6 +62,54 @@ class TestExtractNameFromPdf:
         assert extract_name_from_pdf(pdf_path) is None
 
 
+class TestCustomMarker:
+    @pytest.mark.parametrize(
+        "page_text,marker,expected",
+        [
+            # Custom marker, name on next line
+            ("Otorgado a:\nMaria Perez", "Otorgado a", "Maria Perez"),
+            # Name on same line
+            ("Otorgado a: Maria Perez", "Otorgado a", "Maria Perez"),
+            # Case-insensitive
+            ("OTORGADO A:\nMaria Perez", "otorgado a", "Maria Perez"),
+            # Accent-insensitive both ways
+            ("Reconocimiento a:\nMaria Perez", "reconocimiento á", "Maria Perez"),
+            ("RECONOCIMIENTO Á:\nMaria Perez", "reconocimiento a", "Maria Perez"),
+            # Space before colon, extra spaces between words
+            ("Otorgado  a :\nMaria Perez", "Otorgado a", "Maria Perez"),
+            # No colon, marker at end of line
+            ("Otorgado a\nMaria Perez", "Otorgado a", "Maria Perez"),
+            # Marker given with trailing colon works the same
+            ("Otorgado a:\nMaria Perez", "Otorgado a:", "Maria Perez"),
+            # Marker mid-sentence with colon
+            ("Se hace entrega del presente otorgado a: Maria Perez", "otorgado a", "Maria Perez"),
+            # Custom marker means defaults no longer apply
+            ("Certificado a:\nMaria Perez", "Otorgado a", None),
+            # Marker absent
+            ("Diploma de honor\nMaria Perez", "Otorgado a", None),
+        ],
+    )
+    def test_custom_marker(self, tmp_path, make_pdf_fixture, page_text, marker, expected):
+        pdf_path = tmp_path / "cert.pdf"
+        pdf_path.write_bytes(make_pdf_fixture([page_text]))
+        assert extract_name_from_pdf(pdf_path, marker=marker) == expected
+
+    def test_empty_marker_raises(self):
+        from file_email_sender.matcher import compile_marker
+
+        with pytest.raises(ValueError):
+            compile_marker("  : ")
+
+    def test_match_certificates_with_marker(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Otorgado a:\nMaria Silva")
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, _, _ = match_certificates(
+            attendees, tmp_path, threshold=90, marker="Otorgado a"
+        )
+        assert len(matches) == 1
+        assert matches[0]["matched_name"] == "Maria Silva"
+
+
 class TestNameFromFilename:
     @pytest.mark.parametrize(
         "filename,expected",
