@@ -1,7 +1,7 @@
 """Tests for fuzzy name matcher and PDF name extraction."""
 import pytest
 
-from canva_client.matcher import (
+from file_email_sender.matcher import (
     extract_name_from_pdf,
     match_certificates,
     name_from_filename,

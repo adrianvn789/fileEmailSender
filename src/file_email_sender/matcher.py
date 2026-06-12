@@ -9,7 +9,7 @@ import openpyxl
 import pdfplumber
 from rapidfuzz import fuzz
 
-from canva_client import config
+from file_email_sender import config
 
 
 def normalize(name: str) -> str:

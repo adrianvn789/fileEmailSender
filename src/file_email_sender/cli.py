@@ -1,4 +1,4 @@
-"""CLI entry point for canva-client."""
+"""CLI entry point for file-email-sender."""
 import sys
 
 
@@ -8,22 +8,22 @@ def main() -> None:
 
     try:
         if command == "match":
-            from canva_client.matcher import run_matching
+            from file_email_sender.matcher import run_matching
 
             attendee_folder = args[1] if len(args) > 1 else None
             cert_folder = args[2] if len(args) > 2 else None
             if not attendee_folder:
-                print("Usage: canva-client match <attendee_folder> [certificate_folder]")
+                print("Usage: file-email-sender match <attendee_folder> [certificate_folder]")
                 sys.exit(1)
             run_matching(attendee_folder, cert_folder)
         elif command == "send":
-            from canva_client.pipeline import run_pipeline
+            from file_email_sender.pipeline import run_pipeline
 
             csv_filename = args[1] if len(args) > 1 else "matches.csv"
             run_pipeline(csv_filename=csv_filename)
         else:
             print(f"Unknown command: {command}")
-            print("Usage: canva-client [match|send] ...")
+            print("Usage: file-email-sender [match|send] ...")
             sys.exit(1)
     except KeyboardInterrupt:
         print("\nAborted.")

@@ -1,5 +1,5 @@
 [project]
-name = "canva-client"
+name = "file-email-sender"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-canva-client = "canva_client.cli:main"
+file-email-sender = "file_email_sender.cli:main"
 
 [build-system]
 requires = ["uv_build"]

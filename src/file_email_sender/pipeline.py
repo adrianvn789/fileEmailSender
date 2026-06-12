@@ -5,8 +5,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from canva_client import config
-from canva_client.mailer import create_mailer, send_all_certificates
+from file_email_sender import config
+from file_email_sender.mailer import create_mailer, send_all_certificates
 
 
 def load_log(log_path: Path) -> dict:

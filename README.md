@@ -37,7 +37,7 @@ cp .env.example .env
 | `INPUT_DIR` | Folder containing event subfolders | `input` |
 | `OUTPUT_DIR` | Folder where results are written | `output` |
 
-The email subject and body template live in `src/canva_client/config.py`.
+The email subject and body template live in `src/file_email_sender/config.py`.
 
 ## Input layout
 
@@ -67,13 +67,13 @@ If no marker is found (e.g. image-only PDFs), the **filename** is used as a fall
 ### 1. Match attendees to PDFs
 
 ```bash
-uv run canva-client match my-event
+uv run file-email-sender match my-event
 ```
 
 If the PDFs live in a different subfolder than the Excel file:
 
 ```bash
-uv run canva-client match my-event my-certs-folder
+uv run file-email-sender match my-event my-certs-folder
 ```
 
 This writes `output/my-event/matches.csv` and prints matched pairs, unmatched attendees, and unmatched PDFs.
@@ -87,7 +87,7 @@ Open `output/my-event/matches.csv` and check the pairs before sending — especi
 ### 3. Send emails
 
 ```bash
-uv run canva-client send
+uv run file-email-sender send
 ```
 
 Scans every subfolder in `output/`, reads its `matches.csv`, and sends each attendee their PDF. Progress is printed per email, with a 1.5 s delay between sends.
@@ -97,7 +97,7 @@ Sent emails are recorded in `matches_log.json` next to the CSV, so re-running is
 To use a different CSV file name:
 
 ```bash
-uv run canva-client send other.csv
+uv run file-email-sender send other.csv
 ```
 
 ## Running tests
