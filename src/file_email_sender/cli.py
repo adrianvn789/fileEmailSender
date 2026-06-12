@@ -4,6 +4,8 @@ import sys
 
 def main() -> None:
     args = sys.argv[1:]
+    by_filename = "--by-filename" in args
+    args = [a for a in args if a != "--by-filename"]
     command = args[0] if args else "send"
 
     try:
@@ -13,9 +15,12 @@ def main() -> None:
             attendee_folder = args[1] if len(args) > 1 else None
             cert_folder = args[2] if len(args) > 2 else None
             if not attendee_folder:
-                print("Usage: file-email-sender match <attendee_folder> [certificate_folder]")
+                print(
+                    "Usage: file-email-sender match <attendee_folder>"
+                    " [certificate_folder] [--by-filename]"
+                )
                 sys.exit(1)
-            run_matching(attendee_folder, cert_folder)
+            run_matching(attendee_folder, cert_folder, by_filename=by_filename)
         elif command == "send":
             from file_email_sender.pipeline import run_pipeline
 

@@ -67,8 +67,14 @@ def extract_name_from_pdf(pdf_path: Path) -> str | None:
 
 
 def name_from_filename(pdf_name: str) -> str:
-    """Derive a candidate name from a PDF filename (fallback when extraction fails)."""
+    """Derive a candidate name from a PDF filename.
+
+    Separators (_, -, .) become spaces and camelCase is split, so
+    "MariaPerez.pdf", "maria_perez.pdf" and "cert-Maria-Perez-01.pdf"
+    all yield a comparable name.
+    """
     stem = Path(pdf_name).stem
+    stem = re.sub(r"(?<=[a-zà-ÿ])(?=[A-ZÀ-Þ])", " ", stem)  # camelCase -> camel Case
     return re.sub(r"[_\-.]+", " ", stem).strip()
 
 
@@ -76,8 +82,12 @@ def match_certificates(
     attendees: list[dict],
     pdf_dir: Path,
     threshold: int | None = None,
+    by_filename: bool = False,
 ) -> tuple[list[dict], list[dict], list[str]]:
     """Match attendees to certificate PDFs using fuzzy matching.
+
+    With by_filename=True, PDF text is ignored and every certificate is
+    matched against its (fuzzy-normalized) filename instead.
 
     Returns (matches, unmatched_attendees, unmatched_pdfs).
     """
@@ -85,10 +95,10 @@ def match_certificates(
         threshold = config.MATCH_THRESHOLD
 
     # Extract names from all PDFs; fall back to the filename when the
-    # PDF text has no recognizable marker line.
+    # PDF text has no recognizable marker line (or always, with by_filename).
     cert_names: dict[str, tuple[str, str]] = {}  # pdf_name -> (name, source)
     for pdf_path in sorted(pdf_dir.glob("*.pdf")):
-        name = extract_name_from_pdf(pdf_path)
+        name = None if by_filename else extract_name_from_pdf(pdf_path)
         if name:
             cert_names[pdf_path.name] = (name, "text")
         else:
@@ -137,10 +147,12 @@ def match_certificates(
 def run_matching(
     attendee_folder: str,
     certificate_folder: str | None = None,
+    by_filename: bool = False,
 ) -> None:
     """Run the matching pipeline for a given attendee folder.
 
     If certificate_folder is not provided, uses the same folder as attendee_folder.
+    With by_filename=True, matches against PDF filenames instead of PDF text.
     """
     input_base = Path(config.INPUT_DIR)
     output_base = Path(config.OUTPUT_DIR)
@@ -165,7 +177,11 @@ def run_matching(
     print(f"Found {pdf_count} PDFs in {cert_dir.name}")
 
     # Match
-    matches, unmatched_att, unmatched_pdfs = match_certificates(attendees, cert_dir)
+    if by_filename:
+        print("Matching by filename")
+    matches, unmatched_att, unmatched_pdfs = match_certificates(
+        attendees, cert_dir, by_filename=by_filename
+    )
     print(f"\nResults:")
     print(f"  Matched:              {len(matches)}")
     print(f"  Unmatched attendees:  {len(unmatched_att)}")

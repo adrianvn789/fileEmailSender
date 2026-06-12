@@ -60,7 +60,7 @@ input/
 - `Certificado:` / `Certifica a:` / `Certifica:` variants, with or without a space before the colon
 - `Certificado a` (no colon) at the end of a line, name on the next line
 
-If no marker is found (e.g. image-only PDFs), the **filename** is used as a fallback: name the file with the person's name or part of it (`maria_perez.pdf`, `cert-Maria-Silva.pdf` — `_`, `-`, and `.` count as spaces).
+If no marker is found (e.g. image-only PDFs), the **filename** is used as a fallback: name the file with the person's name or part of it (`maria_perez.pdf`, `cert-Maria-Silva.pdf`, `MariaSilva.pdf` — `_`, `-`, `.` count as spaces, camelCase is split).
 
 ## Usage
 
@@ -75,6 +75,14 @@ If the PDFs live in a different subfolder than the Excel file:
 ```bash
 uv run file-email-sender match my-event my-certs-folder
 ```
+
+To ignore the PDF text entirely and match every certificate by its **filename**:
+
+```bash
+uv run file-email-sender match my-event --by-filename
+```
+
+Filename matching is fuzzy, not exact: `cert-MARIA_pérez.pdf`, `MariaPerez.pdf`, or `maria-perez-2024.pdf` all match the attendee `María Perez`. Extra words and numbers in the filename are tolerated.
 
 This writes `output/my-event/matches.csv` and prints matched pairs, unmatched attendees, and unmatched PDFs.
 

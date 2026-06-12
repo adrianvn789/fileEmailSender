@@ -70,6 +70,8 @@ class TestNameFromFilename:
             ("Maria-Perez.pdf", "Maria Perez"),
             ("cert_maria.perez.pdf", "cert maria perez"),
             ("Maria Perez.pdf", "Maria Perez"),
+            ("MariaPerez.pdf", "Maria Perez"),
+            ("certMariaPérez.pdf", "cert Maria Pérez"),
         ],
     )
     def test_separators(self, filename, expected):
@@ -138,6 +140,33 @@ class TestMatchCertificates:
         matches, _, _ = match_certificates(attendees, tmp_path, threshold=90)
         assert len(matches) == 1
         assert matches[0]["pdf_name"] == "cert_maria_silva.pdf"
+
+    def test_by_filename_ignores_pdf_text(self, tmp_path, make_pdf_fixture):
+        # PDF text names the WRONG person; filename names the right one.
+        _write_cert(
+            tmp_path, make_pdf_fixture, "maria_silva.pdf", "Certificado a:\nJoao Costa"
+        )
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, _, _ = match_certificates(
+            attendees, tmp_path, threshold=90, by_filename=True
+        )
+        assert len(matches) == 1
+        assert matches[0]["pdf_name"] == "maria_silva.pdf"
+
+    def test_by_filename_fuzzy_not_exact(self, tmp_path, make_pdf_fixture):
+        # Accents, case, camelCase, junk prefix, typo-free partials all match.
+        _write_cert(tmp_path, make_pdf_fixture, "cert-MARIA_pérez.pdf", "x")
+        _write_cert(tmp_path, make_pdf_fixture, "JoaoCosta-2024.pdf", "x")
+        attendees = [
+            {"name": "María Perez", "email": "maria@example.com"},
+            {"name": "João Costa", "email": "joao@example.com"},
+        ]
+        matches, unmatched_att, unmatched_pdfs = match_certificates(
+            attendees, tmp_path, threshold=90, by_filename=True
+        )
+        assert len(matches) == 2
+        assert unmatched_att == []
+        assert unmatched_pdfs == []
 
     def test_pdf_used_once(self, tmp_path, make_pdf_fixture):
         _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nMaria Silva")
