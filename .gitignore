@@ -3,8 +3,14 @@
 credentials.json
 token.json
 
-# Certificate PDFs
+# Attendee data and certificates — never commit (PII)
+input/
+output/
 *.pdf
+*.xlsx
+
+# macOS
+.DS_Store
 
 # Python / uv artifacts
 __pycache__/
