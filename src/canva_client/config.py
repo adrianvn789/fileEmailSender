@@ -1,29 +1,33 @@
-"""Configuration loading and validation."""
+"""Configuration."""
 import os
-import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_REQUIRED_VARS = [
-    "CANVA_CLIENT_ID",
-    "CANVA_CLIENT_SECRET",
-    "GOOGLE_SHEET_ID",
-    "GOOGLE_CREDENTIALS_PATH",
-    "SMTP_USER",
-    "SMTP_PASSWORD",
-]
+MATCH_THRESHOLD: int = int(os.environ.get("MATCH_THRESHOLD", "80"))
+INPUT_DIR: str = os.environ.get("INPUT_DIR", "input")
+OUTPUT_DIR: str = os.environ.get("OUTPUT_DIR", "output")
+GMAIL_USER: str = os.environ.get("GMAIL_USER", "")
+GMAIL_APP_PASSWORD: str = os.environ.get("GMAIL_APP_PASSWORD", "")
 
+EMAIL_SUBJECT: str = "Certificado de Participación - Hackathon Tech4Future Hack"
+EMAIL_BODY: str = """\
+Hola {nombre},
 
-def validate_config() -> None:
-    """Validate all required env vars are set. Exits 2 with message on missing var."""
-    for var in _REQUIRED_VARS:
-        if not os.environ.get(var):
-            print(f"Error: required environment variable '{var}' is not set.", file=sys.stderr)
-            sys.exit(2)
+Gracias por ser parte del Hackathon Tech4Future Hack, organizado por el
+Hub Boliviano de Inteligencia Artificial junto a Microsoft Learn Student
+Ambassadors (Cochabamba).
 
+Tu participación en este evento, enfocado en desarrollar soluciones
+innovadoras con Inteligencia Artificial orientadas a los Objetivos de
+Desarrollo Sostenible (ODS) de las Naciones Unidas en los ejes de Salud,
+Educación y Medio Ambiente, fue muy valiosa.
 
-MATCH_THRESHOLD: int = int(os.environ.get("MATCH_THRESHOLD", "90"))
-NAME_COLUMN: int = int(os.environ.get("NAME_COLUMN", "0"))
-EMAIL_COLUMN: int = int(os.environ.get("EMAIL_COLUMN", "1"))
-CANVA_DESIGN_ID: str = os.environ.get("CANVA_DESIGN_ID", "")
+Adjunto encontrarás tu certificado de participación.
+
+¡Esperamos verte en futuros eventos!
+
+Saludos cordiales,
+Hub Boliviano de Inteligencia Artificial
+Microsoft Learn Student Ambassadors - Cochabamba
+"""

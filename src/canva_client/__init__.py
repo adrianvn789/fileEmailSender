@@ -1,1 +1,1 @@
-"""Canva Certificate Sender."""
+"""Certificate Sender."""

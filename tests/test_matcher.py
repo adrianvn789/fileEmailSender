@@ -1,66 +1,150 @@
-"""Tests for fuzzy name matcher."""
+"""Tests for fuzzy name matcher and PDF name extraction."""
 import pytest
-from canva_client.matcher import normalize_name, match_name, match_all
-from canva_client.models import Certificate, Attendee
+
+from canva_client.matcher import (
+    extract_name_from_pdf,
+    match_certificates,
+    name_from_filename,
+    normalize,
+)
 
 
-class TestNormalizeName:
+class TestNormalize:
     def test_lowercase(self):
-        assert normalize_name("Mariana Perez") == "mariana perez"
+        assert normalize("Mariana Perez") == "mariana perez"
 
     def test_strip_accents(self):
-        assert normalize_name("Mariana P\u00e9rez") == "mariana perez"
+        assert normalize("Mariana Pérez") == "mariana perez"
 
     def test_collapse_whitespace(self):
-        assert normalize_name("  spaces   here  ") == "spaces here"
+        assert normalize("  spaces   here  ") == "spaces here"
 
     def test_combined(self):
-        assert normalize_name("  Mar\u00eda   P\u00e9rez  ") == "maria perez"
+        assert normalize("  María   Pérez  ") == "maria perez"
 
 
-class TestMatchName:
+class TestExtractNameFromPdf:
     @pytest.mark.parametrize(
-        "cert_name,attendee_name,expect_match",
+        "page_text,expected",
         [
-            ("Maria Silva", "Maria Silva", True),
-            ("Maria Silva", "Silva Maria", True),
-            ("Maria P\u00e9rez", "Maria Perez", True),
-            ("Maria Silva", "Mariana Silva", False),
-            ("Ana", "Carlos", False),
+            ("Certificado a:\nMaria Perez", "Maria Perez"),
+            ("CERTIFICADO A:\nMaria Perez", "Maria Perez"),
+            ("Certificado:\nMaria Perez", "Maria Perez"),
+            ("Certifica a:\nMaria Perez", "Maria Perez"),
+            ("Certifica:\nMaria Perez", "Maria Perez"),
+            ("Certificado a :\nMaria Perez", "Maria Perez"),
+            ("Certificado a\nMaria Perez", "Maria Perez"),
+            ("Certificado a: Maria Perez", "Maria Perez"),
+            ("Se otorga el presente certificado a:\nMaria Perez", "Maria Perez"),
+            ("Diploma de honor\nMaria Perez", None),
         ],
     )
-    def test_match_name(self, cert_name, attendee_name, expect_match):
-        _, matched = match_name(cert_name, attendee_name, threshold=90)
-        assert matched == expect_match
+    def test_marker_variants(self, tmp_path, make_pdf_fixture, page_text, expected):
+        pdf_path = tmp_path / "cert.pdf"
+        pdf_path.write_bytes(make_pdf_fixture([page_text]))
+        assert extract_name_from_pdf(pdf_path) == expected
+
+    def test_bare_certificado_mid_prose_does_not_trigger(self, tmp_path, make_pdf_fixture):
+        pdf_path = tmp_path / "cert.pdf"
+        pdf_path.write_bytes(
+            make_pdf_fixture(["Se entrega este certificado\npor su participacion"])
+        )
+        assert extract_name_from_pdf(pdf_path) is None
+
+    def test_marker_on_last_line_returns_none(self, tmp_path, make_pdf_fixture):
+        pdf_path = tmp_path / "cert.pdf"
+        pdf_path.write_bytes(make_pdf_fixture(["Certificado a:"]))
+        assert extract_name_from_pdf(pdf_path) is None
+
+    def test_unreadable_pdf_returns_none(self, tmp_path):
+        pdf_path = tmp_path / "broken.pdf"
+        pdf_path.write_bytes(b"not a pdf")
+        assert extract_name_from_pdf(pdf_path) is None
 
 
-class TestMatchAll:
-    def _make_cert(self, name, page=1):
-        return Certificate(page_number=page, name=name, export_url=f"https://example.com/{page}.pdf")
+class TestNameFromFilename:
+    @pytest.mark.parametrize(
+        "filename,expected",
+        [
+            ("maria_perez.pdf", "maria perez"),
+            ("Maria-Perez.pdf", "Maria Perez"),
+            ("cert_maria.perez.pdf", "cert maria perez"),
+            ("Maria Perez.pdf", "Maria Perez"),
+        ],
+    )
+    def test_separators(self, filename, expected):
+        assert name_from_filename(filename) == expected
 
-    def _make_att(self, name, email=None):
-        return Attendee(name=name, email=email or f"{name.lower().replace(' ', '.')}@example.com")
 
-    def test_all_matched(self):
-        certs = [self._make_cert("Maria Silva", 1), self._make_cert("Jo\u00e3o Costa", 2)]
-        atts = [self._make_att("Maria Silva"), self._make_att("Joao Costa")]
-        result = match_all(certs, atts, threshold=90)
-        assert len(result.matches) == 2
-        assert len(result.unmatched_certificates) == 0
-        assert len(result.unmatched_attendees) == 0
+def _write_cert(tmp_path, make_pdf, filename, page_text):
+    (tmp_path / filename).write_bytes(make_pdf([page_text]))
 
-    def test_unmatched_certificate(self):
-        certs = [self._make_cert("Maria Silva", 1), self._make_cert("Unknown Person", 2)]
-        atts = [self._make_att("Maria Silva")]
-        result = match_all(certs, atts, threshold=90)
-        assert len(result.matches) == 1
-        assert len(result.unmatched_certificates) == 1
-        assert result.unmatched_certificates[0].name == "Unknown Person"
 
-    def test_unmatched_attendee(self):
-        certs = [self._make_cert("Maria Silva", 1)]
-        atts = [self._make_att("Maria Silva"), self._make_att("Extra Person")]
-        result = match_all(certs, atts, threshold=90)
-        assert len(result.matches) == 1
-        assert len(result.unmatched_attendees) == 1
-        assert result.unmatched_attendees[0].name == "Extra Person"
+class TestMatchCertificates:
+    def test_all_matched(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nMaria Silva")
+        _write_cert(tmp_path, make_pdf_fixture, "c2.pdf", "Certificado a:\nJoao Costa")
+        attendees = [
+            {"name": "Maria Silva", "email": "maria@example.com"},
+            {"name": "João Costa", "email": "joao@example.com"},
+        ]
+        matches, unmatched_att, unmatched_pdfs = match_certificates(
+            attendees, tmp_path, threshold=90
+        )
+        assert len(matches) == 2
+        assert unmatched_att == []
+        assert unmatched_pdfs == []
+
+    def test_word_order_and_case(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nSILVA MARIA")
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, _, _ = match_certificates(attendees, tmp_path, threshold=90)
+        assert len(matches) == 1
+        assert matches[0]["pdf_name"] == "c1.pdf"
+
+    def test_unmatched_attendee(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nMaria Silva")
+        attendees = [
+            {"name": "Maria Silva", "email": "maria@example.com"},
+            {"name": "Extra Person", "email": "extra@example.com"},
+        ]
+        matches, unmatched_att, _ = match_certificates(attendees, tmp_path, threshold=90)
+        assert len(matches) == 1
+        assert len(unmatched_att) == 1
+        assert unmatched_att[0]["name"] == "Extra Person"
+
+    def test_unmatched_pdf(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nMaria Silva")
+        _write_cert(tmp_path, make_pdf_fixture, "c2.pdf", "Certificado a:\nUnknown Person")
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, _, unmatched_pdfs = match_certificates(attendees, tmp_path, threshold=90)
+        assert len(matches) == 1
+        assert unmatched_pdfs == ["c2.pdf"]
+
+    def test_filename_fallback_when_no_marker(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "maria_silva.pdf", "Diploma de honor")
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, unmatched_att, unmatched_pdfs = match_certificates(
+            attendees, tmp_path, threshold=90
+        )
+        assert len(matches) == 1
+        assert matches[0]["pdf_name"] == "maria_silva.pdf"
+        assert unmatched_att == []
+        assert unmatched_pdfs == []
+
+    def test_filename_fallback_partial_name_with_junk(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "cert_maria_silva.pdf", "Diploma de honor")
+        attendees = [{"name": "Maria Silva", "email": "maria@example.com"}]
+        matches, _, _ = match_certificates(attendees, tmp_path, threshold=90)
+        assert len(matches) == 1
+        assert matches[0]["pdf_name"] == "cert_maria_silva.pdf"
+
+    def test_pdf_used_once(self, tmp_path, make_pdf_fixture):
+        _write_cert(tmp_path, make_pdf_fixture, "c1.pdf", "Certificado a:\nMaria Silva")
+        attendees = [
+            {"name": "Maria Silva", "email": "maria@example.com"},
+            {"name": "Maria Silva", "email": "maria2@example.com"},
+        ]
+        matches, unmatched_att, _ = match_certificates(attendees, tmp_path, threshold=90)
+        assert len(matches) == 1
+        assert len(unmatched_att) == 1

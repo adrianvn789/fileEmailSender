@@ -3,11 +3,11 @@ name = "canva-client"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "httpx>=0.28.1",
-    "keyring>=25.7.0",
-    "pdfplumber>=0.11.0",
+    "openpyxl>=3.1.5",
+    "pdfplumber>=0.11.9",
     "python-dotenv>=1.2.2",
     "rapidfuzz>=3.14.3",
+    "yagmail>=0.15.293",
 ]
 
 [project.scripts]
@@ -21,10 +21,8 @@ build-backend = "uv_build"
 dev = [
     "fpdf2>=2.8.0",
     "pytest>=9.0.2",
-    "pytest-asyncio>=0.24.0",
 ]
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib"]
 testpaths = ["tests"]
-asyncio_mode = "auto"
